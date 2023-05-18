@@ -1,0 +1,20 @@
+{
+	admin unix//home/REPLACEME/.caddy-admin.sock
+	order cgi before respond
+}
+http://REPLACEME.p.projectsegfau.lt {
+	bind unix/.webserver.sock
+	root * /home/REPLACEME/public_html
+	try_files {path}.html {path}.php {path}.htm {path} {path}/ =404
+	file_server
+	encode gzip
+	templates
+	php_fastcgi unix//run/php/php-fpm.sock
+	cgi /*.cgi /home/REPLACEME/public_html{path}
+	cgi /*.py /home/REPLACEME/public_html{path}
+	cgi /*.sh /home/REPLACEME/public_html{path}
+	cgi /*.pl /home/REPLACEME/public_html{path}
+	cgi /*.lua /home/REPLACEME/public_html{path}
+	cgi /*.bash /home/REPLACEME/public_html{path}
+	cgi /cgi-bin/* /home/REPLACEME/public_html{path}
+}

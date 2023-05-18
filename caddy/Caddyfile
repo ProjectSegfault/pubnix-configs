@@ -1,0 +1,63 @@
+# The Caddyfile is an easy way to configure your Caddy web server.
+#
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+#
+# To use your own domain name (with automatic HTTPS), first make
+# sure your domain's A/AAAA DNS records are properly pointed to
+# this machine's public IP, then replace ":80" below with your
+# domain name.
+{
+	admin 0.0.0.0:2019
+}
+:80 {
+	respond "You're in limbo"
+}
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
+pubnixtodo.p.projectsegfau.lt:80 {
+	redir https://todo.projectsegfau.lt/share/WkihzkuopVpzOezCmQPEXxdFsMUJJVsyXzKlgsmx/auth?view=kanban
+}
+*.p.projectsegfau.lt:80 {
+	@host header_regexp host Host ^(?:[a-zA-Z0-9]+\-)?([A-Za-z0-9]+)\.p\.projectsegfau\.lt
+	handle @host {
+		reverse_proxy unix///home/{re.host.1}/.webserver.sock {
+			health_status 2xx
+			health_interval 5s
+			health_timeout 60s
+		}
+	}
+	handle_errors {
+		@502 expression {err.status_code} == 502
+		handle @502 {
+			respond * 502 {
+				body "This site is either down or does not exist.
+If this site really does exist, please make sure your Caddy is running. Try systemctl --user start caddy. It is also possible you have a config issue, if so, please reach out to us on Matrix.
+"
+			}
+		}
+		respond "{err.status_code} | {err.status_text} (on {re.host.1})" {
+			close
+		}
+	}
+}
+
+:60606 {
+	root * /var/www/error_pages
+	templates
+	file_server {
+		index 502.html
+	}
+	handle_errors {
+		@502 expression {err.status_code} == 502
+		handle @502 {
+			respond * 502 {
+				body "
+This site is either down or does not exist.
+If this site really does exist, please make sure your Caddy is running. Try systemctl --user start caddy. It is also possible you have a config issue, if so, please reach out to us on Matrix.
+"
+			}
+		}
+	}
+}

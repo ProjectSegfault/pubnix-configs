@@ -1,0 +1,8 @@
+db sqlite3 /var/soju/main.db
+message-store db
+listen ircs://
+tls /etc/ssl/ssl/fullchain.pem /etc/ssl/ssl/privkey.pem
+hostname p.projectsegfau.lt
+listen unix+admin:///var/soju/admin.sock
+enable-user-on-auth true
+auth pam
