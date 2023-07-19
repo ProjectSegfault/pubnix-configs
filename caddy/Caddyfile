@@ -8,7 +8,7 @@
 # this machine's public IP, then replace ":80" below with your
 # domain name.
 {
-	admin 0.0.0.0:2019
+	admin unix//var/lib/caddy/.caddy-admin.sock
 }
 :80 {
 	respond "You're in limbo"
